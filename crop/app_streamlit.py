@@ -68,5 +68,6 @@ if st.sidebar.button("🌱 Recommend Crop"):
             st.error(f"⚠️ Error during prediction: {e}")
 
 # Footer
-st.markdown("---")
-st.markdown("🔬 Built with ❤️ using **Streamlit** and **Machine Learning**")
+st.markdown("----")
+st.markdown("🔬 Built with ❤️ using **Streamlit** and **Machine Learning**") 
+
