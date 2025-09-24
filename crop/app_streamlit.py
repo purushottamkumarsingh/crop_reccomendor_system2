@@ -4,7 +4,8 @@ import pickle
 import os
 
 # ------------------- Load Trained Model -------------------
-MODEL_PATH = os.path.join("artifacts", "model.pkl")
+MODEL_PATH = os.path.join("crop", "artifacts", "model.pkl")
+
 
 model = None
 label_encoder = None
