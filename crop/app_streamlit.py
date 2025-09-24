@@ -6,16 +6,21 @@ import os
 # ------------------- Load Trained Model -------------------
 MODEL_PATH = os.path.join("artifacts", "model.pkl")
 
-with open(MODEL_PATH, "rb") as f:
-    model_data = pickle.load(f)
+model = None
+label_encoder = None
 
-# Handle dict or direct object
-if isinstance(model_data, dict):
-    model = model_data["model"]
-    label_encoder = model_data.get("encoder", None)
+if os.path.exists(MODEL_PATH):
+    with open(MODEL_PATH, "rb") as f:
+        model_data = pickle.load(f)
+
+    # Handle dict or direct object
+    if isinstance(model_data, dict):
+        model = model_data["model"]
+        label_encoder = model_data.get("encoder", None)
+    else:
+        model = model_data
 else:
-    model = model_data
-    label_encoder = None
+    st.error("⚠️ Model file not found! Please upload `artifacts/model.pkl`.")
 
 # ------------------- Streamlit UI -------------------
 st.set_page_config(page_title="🌾 Crop Recommendation System", page_icon="🌱", layout="wide")
@@ -38,26 +43,29 @@ rainfall = st.sidebar.number_input("Rainfall (mm)", min_value=0.0, step=0.1, val
 
 # Predict Button
 if st.sidebar.button("🌱 Recommend Crop"):
-    try:
-        features = np.array([[N, P, K, temperature, humidity, ph, rainfall]])
-        pred_class = model.predict(features)[0]
+    if model is None:
+        st.error("⚠️ No trained model available. Please upload `artifacts/model.pkl`.")
+    else:
+        try:
+            features = np.array([[N, P, K, temperature, humidity, ph, rainfall]])
+            pred_class = model.predict(features)[0]
 
-        # Handle output type
-        if isinstance(pred_class, str):
-            prediction = pred_class
-        elif label_encoder:
-            prediction = label_encoder.inverse_transform([int(pred_class)])[0]
-        else:
-            prediction = str(pred_class)
+            # Handle output type
+            if isinstance(pred_class, str):
+                prediction = pred_class
+            elif label_encoder:
+                prediction = label_encoder.inverse_transform([int(pred_class)])[0]
+            else:
+                prediction = str(pred_class)
 
-        # Display result in a styled card
-        st.success(f"✅ Recommended Crop: **{prediction.upper()}** 🌱")
+            # Display result in a styled card
+            st.success(f"✅ Recommended Crop: **{prediction.upper()}** 🌱")
 
-        # Add a little celebratory animation
-        st.balloons()
+            # Add a little celebratory animation
+            st.balloons()
 
-    except Exception as e:
-        st.error(f"⚠️ Error during prediction: {e}")
+        except Exception as e:
+            st.error(f"⚠️ Error during prediction: {e}")
 
 # Footer
 st.markdown("---")
